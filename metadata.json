@@ -1,0 +1,6 @@
+{
+  "name": "Folio Library",
+  "description": "Modern Library Management System admin dashboard for managing book inventory, catalog search, and availability.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
