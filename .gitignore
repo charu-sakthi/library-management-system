@@ -1,8 +1,27 @@
+
+# Node.js / React
 node_modules/
 build/
 dist/
 coverage/
-.DS_Store
 *.log
-.env*
+
+# Environment files and secrets
+.env
+.env.*
 !.env.example
+
+# Java / Spring Boot / Maven
+backend/target/
+*.class
+*.jar
+*.war
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
