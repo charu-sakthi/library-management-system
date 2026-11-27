@@ -1,5 +1,6 @@
+
 import { createContext, useContext, useState } from 'react';
-import { loginAdmin, logoutAdmin } from '../services/authApi.js';
+import { loginAdmin } from '../services/authApi.js';
 
 const AuthContext = createContext(null);
 
@@ -9,23 +10,27 @@ export function AuthProvider({ children }) {
 
   async function login(credentials) {
     setAuthLoading(true);
+
     try {
       const response = await loginAdmin(credentials);
-      setUser(response.user);
-      return response.user;
+
+      const loggedInUser = {
+        name: response.name,
+        email: response.email,
+      };
+
+      localStorage.setItem('token', response.token);
+      setUser(loggedInUser);
+
+      return loggedInUser;
     } finally {
       setAuthLoading(false);
     }
   }
 
   async function logout() {
-    setAuthLoading(true);
-    try {
-      await logoutAdmin();
-      setUser(null);
-    } finally {
-      setAuthLoading(false);
-    }
+    localStorage.removeItem('token');
+    setUser(null);
   }
 
   const value = {
@@ -36,13 +41,19 @@ export function AuthProvider({ children }) {
     logout,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
   const context = useContext(AuthContext);
+
   if (!context) {
     throw new Error('useAuth must be used inside an AuthProvider.');
   }
+
   return context;
 }

@@ -1,47 +1,59 @@
+
 /**
- * Central API configuration for connecting to a Java Spring Boot REST backend.
- *
- * When your Spring Boot server is running (e.g., on http://localhost:8080),
- * set USE_MOCK_API to `false` and configure VITE_API_BASE_URL in `.env`.
+ * Central API configuration for Spring Boot backend.
  */
+
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
-export const USE_MOCK_API = true;
+export const USE_MOCK_API = false;
 
 /**
- * Standard fetch wrapper ready for Spring Boot REST endpoints.
- * Automatically parses JSON responses and throws descriptive errors.
+ * Standard API request wrapper.
+ * Automatically attaches JWT authentication token.
  */
 export async function apiRequest(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
 
+  // Get JWT token saved during login
+  const token = localStorage.getItem('token');
+
   const config = {
+    ...options,
     headers: {
       'Content-Type': 'application/json',
+
+      // Attach JWT token to protected API requests
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+
       ...options.headers,
     },
-    ...options,
   };
 
   const response = await fetch(url, config);
 
+  // Handle API errors
   if (!response.ok) {
     let message = `Request failed with status ${response.status}`;
+
     try {
       const errorBody = await response.json();
+
       if (errorBody?.message) {
         message = errorBody.message;
       }
     } catch {
-      // Response body was not JSON; keep default status message.
+      // Keep default error message
     }
+
     throw new Error(message);
   }
 
+  // Handle empty responses
   if (response.status === 204) {
     return null;
   }
 
+  // Return JSON response
   return response.json();
 }
